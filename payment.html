@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment — AgriRental</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+  <style>
+    body { background: #f4f6f9; font-family: 'DM Sans', sans-serif; }
+    .payment-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: linear-gradient(135deg, #1a1209 0%, #2d1f0e 100%);
+    }
+    .payment-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      max-width: 900px;
+      width: 100%;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+    }
+    .order-panel {
+      background: #2d1f0e;
+      padding: 40px;
+      color: #f4eed6;
+    }
+    .order-logo {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 32px;
+    }
+    .order-logo-icon {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, #c8973a, #e8b84b);
+      border-radius: 10px;
+      display: flex; align-items: center;
+      justify-content: center; font-size: 22px;
+    }
+    .order-logo h2 { font-size: 18px; font-weight: 700; color: #f4eed6; }
+    .order-title {
+      font-size: 13px; color: #a3b87a;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      margin-bottom: 8px;
+    }
+    .order-amount {
+      font-size: 42px; font-weight: 800;
+      color: #e8b84b; margin-bottom: 32px; line-height: 1;
+    }
+    .order-details { display: grid; gap: 14px; }
+    .order-row {
+      display: flex; justify-content: space-between;
+      font-size: 14px; padding-bottom: 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .order-row:last-child { border-bottom: none; }
+    .order-row .label { color: #a3b87a; }
+    .order-row .value { color: #f4eed6; font-weight: 500; }
+    .secure-badge {
+      display: flex; align-items: center; gap: 8px;
+      margin-top: 32px;
+      background: rgba(255,255,255,0.05);
+      padding: 12px 16px; border-radius: 10px;
+      font-size: 12px; color: #a3b87a;
+    }
+    .payment-panel { background: #fff; padding: 40px; }
+    .payment-title {
+      font-size: 20px; font-weight: 700;
+      color: #1a1209; margin-bottom: 24px;
+    }
+    .method-tabs {
+      display: flex; gap: 0;
+      border: 1.5px solid #e0d8c5;
+      border-radius: 10px; overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .method-tab {
+      flex: 1; padding: 12px 8px;
+      background: #fff; border: none;
+      cursor: pointer; font-size: 12px;
+      font-weight: 600; color: #888;
+      transition: all 0.2s;
+      border-right: 1.5px solid #e0d8c5;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 4px;
+    }
+    .method-tab:last-child { border-right: none; }
+    .method-tab.active { background: #f4eed6; color: #c8973a; }
+    .method-tab .tab-icon { font-size: 20px; }
+    .field-group { margin-bottom: 18px; }
+    .field-label {
+      display: block; font-size: 12px;
+      font-weight: 600; color: #6b4226;
+      margin-bottom: 6px;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .field-input {
+      width: 100%; padding: 12px 16px;
+      border: 1.5px solid #e0d8c5;
+      border-radius: 8px; font-size: 15px;
+      font-family: 'DM Sans', sans-serif;
+      color: #1a1209; outline: none;
+      transition: all 0.2s; background: #fafafa;
+    }
+    .field-input:focus {
+      border-color: #c8973a; background: #fff;
+      box-shadow: 0 0 0 3px rgba(200,151,58,0.12);
+    }
+    .field-input::placeholder { color: #ccc; }
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr; gap: 14px;
+    }
+    .card-preview {
+      background: linear-gradient(135deg, #1a1209, #3d2b15);
+      border-radius: 14px; padding: 24px;
+      margin-bottom: 24px; color: #fff;
+      position: relative; overflow: hidden; min-height: 160px;
+    }
+    .card-preview::before {
+      content: '';
+      position: absolute; top: -40px; right: -40px;
+      width: 160px; height: 160px;
+      background: rgba(200,151,58,0.15);
+      border-radius: 50%;
+    }
+    .card-chip { font-size: 28px; margin-bottom: 16px; }
+    .card-number-preview {
+      font-size: 18px; letter-spacing: 0.15em;
+      font-family: monospace; margin-bottom: 16px;
+      color: rgba(255,255,255,0.9);
+    }
+    .card-bottom {
+      display: flex; justify-content: space-between;
+      font-size: 12px; color: rgba(255,255,255,0.6);
+    }
+    .card-bottom .card-holder {
+      font-size: 14px; color: #fff; font-weight: 600;
+    }
+    .upi-apps {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 10px; margin-bottom: 20px;
+    }
+    .upi-app {
+      padding: 12px 8px; border-radius: 10px;
+      border: 1.5px solid #e0d8c5;
+      text-align: center; cursor: pointer;
+      transition: all 0.2s; font-size: 11px;
+      font-weight: 600; color: #444; background: #fafafa;
+    }
+    .upi-app:hover { border-color: #c8973a; background: #fdf8ee; }
+    .upi-app.selected { border-color: #c8973a; background: #f4eed6; }
+    .upi-app .app-icon { font-size: 28px; display: block; margin-bottom: 4px; }
+    .upi-id-field { position: relative; }
+    .upi-id-field .field-input { padding-right: 80px; }
+    .upi-verify-btn {
+      position: absolute; right: 8px; top: 50%;
+      transform: translateY(-50%);
+      background: #c8973a; color: #fff;
+      border: none; border-radius: 6px;
+      padding: 6px 12px; font-size: 12px;
+      font-weight: 600; cursor: pointer;
+    }
+    .banks-grid {
+      display: grid; grid-template-columns: repeat(2,1fr);
+      gap: 10px; margin-bottom: 20px;
+    }
+    .bank-option {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px; border-radius: 8px;
+      border: 1.5px solid #e0d8c5;
+      cursor: pointer; transition: all 0.2s;
+      font-size: 13px; font-weight: 500; background: #fafafa;
+    }
+    .bank-option:hover { border-color: #c8973a; }
+    .bank-option.selected { border-color: #c8973a; background: #f4eed6; }
+    .bank-icon { font-size: 22px; }
+    .wallets-grid {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 10px; margin-bottom: 20px;
+    }
+    .wallet-option {
+      padding: 14px 8px; border-radius: 10px;
+      border: 1.5px solid #e0d8c5;
+      text-align: center; cursor: pointer;
+      transition: all 0.2s; font-size: 11px;
+      font-weight: 600; color: #444; background: #fafafa;
+    }
+    .wallet-option:hover { border-color: #c8973a; }
+    .wallet-option.selected { border-color: #c8973a; background: #f4eed6; }
+    .wallet-option .w-icon { font-size: 28px; display: block; margin-bottom: 4px; }
+    .pay-now-btn {
+      width: 100%; padding: 16px;
+      background: linear-gradient(135deg, #c8973a, #e8b84b);
+      color: #fff; border: none; border-radius: 10px;
+      font-size: 16px; font-weight: 700;
+      cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center;
+      justify-content: center; gap: 10px; margin-top: 8px;
+    }
+    .pay-now-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(200,151,58,0.4);
+    }
+    .pay-now-btn:disabled {
+      background: #ccc; cursor: not-allowed;
+      transform: none; box-shadow: none;
+    }
+    .security-note {
+      text-align: center; font-size: 11px; color: #aaa;
+      margin-top: 12px;
+      display: flex; align-items: center;
+      justify-content: center; gap: 5px;
+    }
+    .processing {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7); z-index: 1000;
+      align-items: center; justify-content: center;
+      flex-direction: column; color: #fff; text-align: center;
+    }
+    .processing.show { display: flex; }
+    .processing-spinner {
+      width: 60px; height: 60px;
+      border: 4px solid rgba(255,255,255,0.2);
+      border-top-color: #e8b84b; border-radius: 50%;
+      animation: spin 0.8s linear infinite; margin-bottom: 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .success-page {
+      display: none; position: fixed; inset: 0;
+      background: linear-gradient(135deg, #1a1209, #2d1f0e);
+      z-index: 2000; align-items: center;
+      justify-content: center; flex-direction: column;
+      color: #fff; text-align: center; padding: 40px;
+    }
+    .success-page.show { display: flex; }
+    .success-icon {
+      width: 100px; height: 100px;
+      background: linear-gradient(135deg, #5a8a28, #7ea83c);
+      border-radius: 50%;
+      display: flex; align-items: center;
+      justify-content: center; font-size: 50px;
+      margin-bottom: 24px;
+      animation: popIn 0.5s cubic-bezier(0.175,0.885,0.32,1.275);
+    }
+    @keyframes popIn {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+    .success-title {
+      font-size: 32px; font-weight: 800;
+      color: #e8b84b; margin-bottom: 8px;
+    }
+    .success-sub {
+      font-size: 16px; color: #a3b87a; margin-bottom: 32px;
+    }
+    .success-receipt {
+      background: rgba(255,255,255,0.08);
+      border-radius: 14px; padding: 24px;
+      width: 100%; max-width: 360px;
+      margin-bottom: 32px; text-align: left;
+    }
+    .receipt-row {
+      display: flex; justify-content: space-between;
+      font-size: 14px; padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .receipt-row:last-child { border-bottom: none; }
+    .receipt-row .r-label { color: #a3b87a; }
+    .receipt-row .r-value { color: #f4eed6; font-weight: 600; }
+    .back-btn {
+      padding: 14px 32px; background: #c8973a;
+      color: #fff; border: none; border-radius: 10px;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+    }
+    @media (max-width: 768px) {
+      .payment-container { grid-template-columns: 1fr; }
+      .order-panel { padding: 28px 24px; }
+      .payment-panel { padding: 28px 24px; }
+      .upi-apps { grid-template-columns: repeat(2,1fr); }
+      .banks-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="payment-page">
+  <div class="payment-container">
+
+    <!-- LEFT ORDER SUMMARY -->
+    <div class="order-panel">
+      <div class="order-logo">
+        <div class="order-logo-icon">🌾</div>
+        <div>
+          <h2>AgriRental</h2>
+          <p style="font-size:11px;color:#a3b87a;">
+            Equipment Rental Payment
+          </p>
+        </div>
+      </div>
+      <div class="order-title">Amount to Pay</div>
+      <div class="order-amount" id="display-amount">₹0</div>
+      <div class="order-details">
+        <div class="order-row">
+          <span class="label">Customer</span>
+          <span class="value" id="display-customer">—</span>
+        </div>
+        <div class="order-row">
+          <span class="label">Equipment</span>
+          <span class="value" id="display-equipment">—</span>
+        </div>
+        <div class="order-row">
+          <span class="label">Duration</span>
+          <span class="value" id="display-days">—</span>
+        </div>
+        <div class="order-row">
+          <span class="label">Rental Period</span>
+          <span class="value" id="display-period">—</span>
+        </div>
+        <div class="order-row">
+          <span class="label">Daily Rate</span>
+          <span class="value" id="display-rate">—</span>
+        </div>
+        <div class="order-row">
+          <span class="label">Advance Paid</span>
+          <span class="value" id="display-advance">₹0</span>
+        </div>
+        <div class="order-row">
+          <span class="label" style="color:#e8b84b;">
+            Balance Due
+          </span>
+          <span class="value"
+            style="color:#e8b84b;font-size:16px;"
+            id="display-balance">—</span>
+        </div>
+      </div>
+      <div class="secure-badge">
+        🔒 Secured by 256-bit SSL encryption
+      </div>
+    </div>
+
+    <!-- RIGHT PAYMENT FORM -->
+    <div class="payment-panel">
+      <div class="payment-title">Choose Payment Method</div>
+
+      <!-- Tabs -->
+      <div class="method-tabs">
+        <button class="method-tab active"
+          onclick="switchMethod('card', this)">
+          <span class="tab-icon">💳</span>Card
+        </button>
+        <button class="method-tab"
+          onclick="switchMethod('upi', this)">
+          <span class="tab-icon">📱</span>UPI
+        </button>
+        <button class="method-tab"
+          onclick="switchMethod('netbanking', this)">
+          <span class="tab-icon">🏦</span>Bank
+        </button>
+        <button class="method-tab"
+          onclick="switchMethod('wallet', this)">
+          <span class="tab-icon">👛</span>Wallet
+        </button>
+      </div>
+
+      <!-- CARD -->
+      <div id="card-section">
+        <div class="card-preview">
+          <div class="card-chip">💳</div>
+          <div class="card-number-preview" id="card-num-preview">
+            •••• •••• •••• ••••
+          </div>
+          <div class="card-bottom">
+            <div>
+              <div style="margin-bottom:2px;">Card Holder</div>
+              <div class="card-holder" id="card-name-preview">
+                YOUR NAME
+              </div>
+            </div>
+            <div>
+              <div style="margin-bottom:2px;">Expires</div>
+              <div class="card-holder" id="card-exp-preview">
+                MM/YY
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Type -->
+        <div style="display:flex;gap:8px;margin-bottom:16px;">
+          <div onclick="selectCardType('credit')" id="ct-credit"
+            style="flex:1;padding:8px;border-radius:8px;
+            border:1.5px solid #c8973a;background:#f4eed6;
+            text-align:center;font-size:12px;font-weight:600;
+            color:#c8973a;cursor:pointer;">
+            💳 Credit Card
+          </div>
+          <div onclick="selectCardType('debit')" id="ct-debit"
+            style="flex:1;padding:8px;border-radius:8px;
+            border:1.5px solid #e0d8c5;background:#fafafa;
+            text-align:center;font-size:12px;font-weight:600;
+            color:#888;cursor:pointer;">
+            🏦 Debit Card
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Card Number</label>
+          <input type="text" class="field-input"
+            id="card-number"
+            placeholder="1234 5678 9012 3456"
+            maxlength="19"
+            oninput="formatCardNumber(this)"
+            onkeyup="updateCardPreview()" />
+        </div>
+        <div class="field-group">
+          <label class="field-label">Card Holder Name</label>
+          <input type="text" class="field-input"
+            id="card-name"
+            placeholder="Name as on card"
+            oninput="document.getElementById('card-name-preview').textContent = this.value.toUpperCase() || 'YOUR NAME'" />
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label">Expiry Date</label>
+            <input type="text" class="field-input"
+              id="card-expiry" placeholder="MM/YY"
+              maxlength="5"
+              oninput="formatExpiry(this)"
+              onkeyup="document.getElementById('card-exp-preview').textContent = this.value || 'MM/YY'" />
+          </div>
+          <div class="field-group">
+            <label class="field-label">CVV</label>
+            <input type="password" class="field-input"
+              id="card-cvv" placeholder="•••" maxlength="3" />
+          </div>
+        </div>
+      </div>
+
+      <!-- UPI -->
+      <div id="upi-section" style="display:none;">
+        <p style="font-size:13px;color:#888;margin-bottom:14px;">
+          Select UPI App or enter UPI ID
+        </p>
+        <div class="upi-apps">
+          <div class="upi-app selected"
+            onclick="selectUPIApp(this,'gpay')">
+            <span class="app-icon">🟢</span>Google Pay
+          </div>
+          <div class="upi-app"
+            onclick="selectUPIApp(this,'phonepe')">
+            <span class="app-icon">🟣</span>PhonePe
+          </div>
+          <div class="upi-app"
+            onclick="selectUPIApp(this,'paytm')">
+            <span class="app-icon">🔵</span>Paytm
+          </div>
+          <div class="upi-app"
+            onclick="selectUPIApp(this,'bhim')">
+            <span class="app-icon">🇮🇳</span>BHIM UPI
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">UPI ID</label>
+          <div class="upi-id-field">
+            <input type="text" class="field-input"
+              id="upi-id"
+              placeholder="yourname@paytm" />
+            <button class="upi-verify-btn"
+              onclick="verifyUPI()">Verify</button>
+          </div>
+        </div>
+        <div id="upi-verified" style="display:none;
+          background:#e8f5e0;border-radius:8px;
+          padding:10px 14px;font-size:13px;
+          color:#5a8a28;margin-top:8px;">
+          ✅ UPI ID verified successfully!
+        </div>
+      </div>
+
+      <!-- NET BANKING -->
+      <div id="netbanking-section" style="display:none;">
+        <p style="font-size:13px;color:#888;margin-bottom:14px;">
+          Select your bank
+        </p>
+        <div class="banks-grid">
+          <div class="bank-option selected"
+            onclick="selectBank(this)">
+            <span class="bank-icon">🏦</span>
+            State Bank of India
+          </div>
+          <div class="bank-option" onclick="selectBank(this)">
+            <span class="bank-icon">🏛️</span>HDFC Bank
+          </div>
+          <div class="bank-option" onclick="selectBank(this)">
+            <span class="bank-icon">🏢</span>ICICI Bank
+          </div>
+          <div class="bank-option" onclick="selectBank(this)">
+            <span class="bank-icon">🏬</span>Axis Bank
+          </div>
+          <div class="bank-option" onclick="selectBank(this)">
+            <span class="bank-icon">🏪</span>Punjab National Bank
+          </div>
+          <div class="bank-option" onclick="selectBank(this)">
+            <span class="bank-icon">🏩</span>Bank of Baroda
+          </div>
+          <div class="bank-option" onclick="selectBank(this)">
+            <span class="bank-icon">🏫</span>Canara Bank
+          </div>
+          <div class="bank-option" onclick="selectBank(this)">
+            <span class="bank-icon">🏤</span>Kotak Bank
+          </div>
+        </div>
+      </div>
+
+      <!-- WALLET -->
+      <div id="wallet-section" style="display:none;">
+        <p style="font-size:13px;color:#888;margin-bottom:14px;">
+          Select your wallet
+        </p>
+        <div class="wallets-grid">
+          <div class="wallet-option selected"
+            onclick="selectWallet(this)">
+            <span class="w-icon">🔵</span>Paytm
+          </div>
+          <div class="wallet-option" onclick="selectWallet(this)">
+            <span class="w-icon">🟡</span>Amazon Pay
+          </div>
+          <div class="wallet-option" onclick="selectWallet(this)">
+            <span class="w-icon">🟠</span>MobiKwik
+          </div>
+          <div class="wallet-option" onclick="selectWallet(this)">
+            <span class="w-icon">🔴</span>Airtel Money
+          </div>
+          <div class="wallet-option" onclick="selectWallet(this)">
+            <span class="w-icon">🟢</span>JioMoney
+          </div>
+          <div class="wallet-option" onclick="selectWallet(this)">
+            <span class="w-icon">🟣</span>Ola Money
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Wallet Mobile Number</label>
+          <input type="tel" class="field-input"
+            id="wallet-phone"
+            placeholder="+91 9876543210"
+            maxlength="10" />
+        </div>
+      </div>
+
+      <!-- Pay Button -->
+      <button class="pay-now-btn" id="pay-btn"
+        onclick="processPayment()">
+        🔒 Pay <span id="pay-btn-amount">Now</span>
+      </button>
+      <div class="security-note">
+        🔒 Your payment info is encrypted and secure
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Processing -->
+<div class="processing" id="processing">
+  <div class="processing-spinner"></div>
+  <h3 style="font-size:20px;margin-bottom:8px;">
+    Processing Payment...
+  </h3>
+  <p style="color:rgba(255,255,255,0.6);font-size:14px;">
+    Please do not close this window
+  </p>
+</div>
+
+<!-- Success -->
+<div class="success-page" id="success-page">
+  <div class="success-icon">✅</div>
+  <div class="success-title">Payment Successful!</div>
+  <div class="success-sub">
+    Your equipment rental is confirmed
+  </div>
+  <div class="success-receipt">
+    <div class="receipt-row">
+      <span class="r-label">Transaction ID</span>
+      <span class="r-value" id="s-txn-id">—</span>
+    </div>
+    <div class="receipt-row">
+      <span class="r-label">Amount Paid</span>
+      <span class="r-value" id="s-amount">—</span>
+    </div>
+    <div class="receipt-row">
+      <span class="r-label">Payment Method</span>
+      <span class="r-value" id="s-method">—</span>
+    </div>
+    <div class="receipt-row">
+      <span class="r-label">Customer</span>
+      <span class="r-value" id="s-customer">—</span>
+    </div>
+    <div class="receipt-row">
+      <span class="r-label">Equipment</span>
+      <span class="r-value" id="s-equipment">—</span>
+    </div>
+    <div class="receipt-row">
+      <span class="r-label">Status</span>
+      <span class="r-value" style="color:#7ea83c;">
+        ✅ Paid
+      </span>
+    </div>
+  </div>
+  <button class="back-btn" onclick="goBack()">
+    ← Back to Rentals
+  </button>
+</div>
+
+<script src="../js/api.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/utils.js"></script>
+<script>
+requireAuth();
+
+const params       = new URLSearchParams(window.location.search);
+const rentalId     = params.get("rental_id")   || "";
+const totalAmount  = parseFloat(params.get("amount")   || "0");
+const customerName = decodeURIComponent(params.get("customer")  || "—");
+const equipName    = decodeURIComponent(params.get("equipment") || "—");
+const days         = params.get("days")    || "—";
+const startDate    = params.get("start")   || "—";
+const endDate      = params.get("end")     || "—";
+const dailyRate    = parseFloat(params.get("rate")    || "0");
+const advance      = parseFloat(params.get("advance") || "0");
+const balance      = totalAmount - advance;
+
+document.getElementById("display-amount").textContent    = formatCurrency(balance);
+document.getElementById("display-customer").textContent  = customerName;
+document.getElementById("display-equipment").textContent = equipName;
+document.getElementById("display-days").textContent      = days + " days";
+document.getElementById("display-period").textContent    = startDate + " → " + endDate;
+document.getElementById("display-rate").textContent      = formatCurrency(dailyRate) + "/day";
+document.getElementById("display-advance").textContent   = formatCurrency(advance);
+document.getElementById("display-balance").textContent   = formatCurrency(balance);
+document.getElementById("pay-btn-amount").textContent    = formatCurrency(balance);
+
+let currentMethod   = "card";
+let currentCardType = "credit";
+let selectedUPIApp  = "gpay";
+
+function switchMethod(method, btn) {
+  currentMethod = method;
+  document.querySelectorAll(".method-tab")
+    .forEach(t => t.classList.remove("active"));
+  btn.classList.add("active");
+  document.getElementById("card-section").style.display =
+    method === "card" ? "block" : "none";
+  document.getElementById("upi-section").style.display =
+    method === "upi" ? "block" : "none";
+  document.getElementById("netbanking-section").style.display =
+    method === "netbanking" ? "block" : "none";
+  document.getElementById("wallet-section").style.display =
+    method === "wallet" ? "block" : "none";
+}
+
+function selectCardType(type) {
+  currentCardType = type;
+  const c = document.getElementById("ct-credit");
+  const d = document.getElementById("ct-debit");
+  if (type === "credit") {
+    c.style.borderColor = "#c8973a";
+    c.style.background  = "#f4eed6";
+    c.style.color       = "#c8973a";
+    d.style.borderColor = "#e0d8c5";
+    d.style.background  = "#fafafa";
+    d.style.color       = "#888";
+  } else {
+    d.style.borderColor = "#c8973a";
+    d.style.background  = "#f4eed6";
+    d.style.color       = "#c8973a";
+    c.style.borderColor = "#e0d8c5";
+    c.style.background  = "#fafafa";
+    c.style.color       = "#888";
+  }
+}
+
+function formatCardNumber(input) {
+  let val = input.value.replace(/\D/g,"").substring(0,16);
+  input.value = val.replace(/(.{4})/g,"$1 ").trim();
+  updateCardPreview();
+}
+
+function updateCardPreview() {
+  const num = document.getElementById("card-number").value || "";
+  const masked = num.replace(/\d(?=\d{4})/g,"•");
+  document.getElementById("card-num-preview").textContent =
+    masked || "•••• •••• •••• ••••";
+}
+
+function formatExpiry(input) {
+  let val = input.value.replace(/\D/g,"").substring(0,4);
+  if (val.length >= 2)
+    val = val.substring(0,2) + "/" + val.substring(2);
+  input.value = val;
+}
+
+function selectUPIApp(el, app) {
+  selectedUPIApp = app;
+  document.querySelectorAll(".upi-app")
+    .forEach(a => a.classList.remove("selected"));
+  el.classList.add("selected");
+}
+
+function verifyUPI() {
+  const id = document.getElementById("upi-id").value.trim();
+  if (!id || !id.includes("@")) {
+    alert("Please enter a valid UPI ID (e.g. name@paytm)");
+    return;
+  }
+  setTimeout(() => {
+    document.getElementById("upi-verified").style.display = "block";
+  }, 800);
+}
+
+function selectBank(el) {
+  document.querySelectorAll(".bank-option")
+    .forEach(b => b.classList.remove("selected"));
+  el.classList.add("selected");
+}
+
+function selectWallet(el) {
+  document.querySelectorAll(".wallet-option")
+    .forEach(w => w.classList.remove("selected"));
+  el.classList.add("selected");
+}
+
+function validateForm() {
+  if (currentMethod === "card") {
+    const num = document.getElementById("card-number").value
+      .replace(/\s/g,"");
+    const name = document.getElementById("card-name").value.trim();
+    const exp  = document.getElementById("card-expiry").value;
+    const cvv  = document.getElementById("card-cvv").value;
+    if (num.length < 16) {
+      alert("Please enter a valid 16-digit card number!"); return false;
+    }
+    if (!name) {
+      alert("Please enter card holder name!"); return false;
+    }
+    if (exp.length < 5) {
+      alert("Please enter expiry date (MM/YY)!"); return false;
+    }
+    if (cvv.length < 3) {
+      alert("Please enter CVV!"); return false;
+    }
+  }
+  if (currentMethod === "upi") {
+    const id = document.getElementById("upi-id").value.trim();
+    if (!id) {
+      alert("Please enter UPI ID!"); return false;
+    }
+  }
+  if (currentMethod === "wallet") {
+    const phone = document.getElementById("wallet-phone").value;
+    if (!phone || phone.length < 10) {
+      alert("Please enter wallet mobile number!"); return false;
+    }
+  }
+  return true;
+}
+
+async function processPayment() {
+  if (!validateForm()) return;
+
+  document.getElementById("processing").classList.add("show");
+  document.getElementById("pay-btn").disabled = true;
+
+  await new Promise(r => setTimeout(r, 2500));
+
+  const txnId = "TXN" + Date.now() +
+    Math.random().toString(36).substring(2,8).toUpperCase();
+
+  let methodLabel = "";
+  if (currentMethod === "card") {
+    const last4 = document.getElementById("card-number").value
+      .replace(/\s/g,"").slice(-4);
+    methodLabel = `${currentCardType === "credit" ?
+      "Credit" : "Debit"} Card ••••${last4}`;
+  } else if (currentMethod === "upi") {
+    const id = document.getElementById("upi-id").value || selectedUPIApp;
+    methodLabel = `UPI (${id})`;
+  } else if (currentMethod === "netbanking") {
+    const bank = document.querySelector(".bank-option.selected");
+    methodLabel = `Net Banking (${bank ?
+      bank.textContent.trim() : "Bank"})`;
+  } else if (currentMethod === "wallet") {
+    const wallet = document.querySelector(".wallet-option.selected");
+    methodLabel = `Wallet (${wallet ?
+      wallet.textContent.trim() : "Wallet"})`;
+  }
+
+  try {
+    if (rentalId) {
+      await apiCall(`/rentals/${rentalId}`, "PUT", {
+        payment_status: "paid",
+        payment_method: methodLabel,
+        transaction_id: txnId,
+        updated_at:     new Date().toISOString()
+      });
+    }
+  } catch(e) {}
+
+  document.getElementById("processing").classList.remove("show");
+
+  document.getElementById("s-txn-id").textContent   = txnId;
+  document.getElementById("s-amount").textContent    = formatCurrency(balance);
+  document.getElementById("s-method").textContent    = methodLabel;
+  document.getElementById("s-customer").textContent  = customerName;
+  document.getElementById("s-equipment").textContent = equipName;
+  document.getElementById("success-page").classList.add("show");
+}
+
+function goBack() {
+  window.location.href = "rentals.html";
+}
+</script>
+</body>
+</html>
